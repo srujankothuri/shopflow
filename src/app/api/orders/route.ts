@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { runHighValueOrderRules } from "@/lib/rule-engine";
 
 export async function GET() {
   try {
@@ -72,6 +73,12 @@ export async function POST(req: Request) {
         items: { include: { product: { select: { name: true } } } },
       },
     });
+
+    // Fire automation rules in the background
+    const user = await db.user.findUnique({ where: { email: session.user?.email! } });
+    runHighValueOrderRules(order.id, user?.id).catch((err) =>
+      console.error("Rule execution error:", err)
+    );
 
     return NextResponse.json(order, { status: 201 });
   } catch (error) {

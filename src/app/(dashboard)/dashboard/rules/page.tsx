@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Pencil, Trash2, Zap, ZapOff, Activity } from "lucide-react";
+import { Plus, Pencil, Trash2, Zap, ZapOff, Activity, Play, ScrollText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RuleDialog } from "@/components/rules/rule-dialog";
+import { RuleLogsDialog } from "@/components/rules/rule-logs-dialog";
 
 interface Rule {
   id: string;
@@ -44,6 +45,10 @@ export default function RulesPage() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editRule, setEditRule] = useState<Rule | null>(null);
+  const [logsOpen, setLogsOpen] = useState(false);
+  const [logsRuleId, setLogsRuleId] = useState<string | null>(null);
+  const [logsRuleName, setLogsRuleName] = useState("");
+  const [testing, setTesting] = useState<string | null>(null);
 
   const fetchRules = useCallback(async () => {
     try {
@@ -82,6 +87,30 @@ export default function RulesPage() {
     } catch (err) {
       console.error("Failed to delete:", err);
     }
+  };
+
+  const testRule = async (id: string) => {
+    setTesting(id);
+    try {
+      const res = await fetch(`/api/rules/${id}/execute`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "Test failed");
+      } else {
+        alert(`Rule tested! Results:\n${data.results.map((r: { ruleName: string; status: string }) => `${r.ruleName}: ${r.status}`).join("\n")}`);
+        fetchRules();
+      }
+    } catch {
+      alert("Failed to test rule");
+    } finally {
+      setTesting(null);
+    }
+  };
+
+  const openLogs = (rule: Rule) => {
+    setLogsRuleId(rule.id);
+    setLogsRuleName(rule.name);
+    setLogsOpen(true);
   };
 
   const activeCount = rules.filter((r) => r.isActive).length;
@@ -222,6 +251,23 @@ export default function RulesPage() {
                   <Button
                     variant="ghost"
                     size="icon"
+                    onClick={() => testRule(rule.id)}
+                    disabled={testing === rule.id}
+                    title="Test rule against latest order"
+                  >
+                    <Play className={`h-4 w-4 ${testing === rule.id ? "animate-spin" : ""}`} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => openLogs(rule)}
+                    title="View execution logs"
+                  >
+                    <ScrollText className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => { setEditRule(rule); setDialogOpen(true); }}
                   >
                     <Pencil className="h-4 w-4" />
@@ -246,6 +292,13 @@ export default function RulesPage() {
         onClose={() => { setDialogOpen(false); setEditRule(null); }}
         onSave={fetchRules}
         rule={editRule}
+      />
+
+      <RuleLogsDialog
+        open={logsOpen}
+        onClose={() => setLogsOpen(false)}
+        ruleId={logsRuleId}
+        ruleName={logsRuleName}
       />
     </div>
   );
