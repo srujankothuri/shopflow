@@ -25,7 +25,7 @@ export function Header() {
     .toUpperCase() || "U";
 
   return (
-    <header className="flex h-14 items-center justify-between border-b bg-card px-6">
+    <header className="flex h-14 items-center justify-between border-b bg-card px-6 pl-14 md:pl-6">
       <div>
         <h2 className="text-sm font-medium text-muted-foreground">
           Welcome back, {session?.user?.name?.split(" ")[0] || "User"}
