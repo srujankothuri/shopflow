@@ -1,4 +1,5 @@
  import { db } from "@/lib/db";
+ import { sendEmail } from "@/lib/email";
 
 // --- Types ---
 interface Condition {
@@ -133,9 +134,14 @@ async function executeAction(action: Action, ctx: TriggerContext): Promise<strin
     }
 
     case "SEND_EMAIL": {
-      // In production, this would call Resend/SendGrid
-      // For now, we log it as a successful simulation
-      return `Email sent to ${action.params.to || "admin"}: ${action.params.subject || "Notification"}`;
+      const result = await sendEmail({
+        to: action.params.to || "admin@shopflow.com",
+        subject: action.params.subject || "ShopFlow Notification",
+        body: action.params.body || "An automation rule was triggered.",
+      });
+      return result.simulated
+        ? `Email simulated to ${action.params.to || "admin"}: ${action.params.subject || "Notification"}`
+        : `Email sent to ${action.params.to || "admin"}: ${action.params.subject || "Notification"}`;
     }
 
     default:
