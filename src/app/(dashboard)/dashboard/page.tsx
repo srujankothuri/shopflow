@@ -1,9 +1,19 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { getDashboardStats, getOrderStatusCounts } from "@/lib/dashboard";
+import { StatsCards } from "@/components/dashboard/stats-cards";
+import { RevenueChart } from "@/components/dashboard/revenue-chart";
+import { RecentOrders } from "@/components/dashboard/recent-orders";
+import { OrderStatusChart } from "@/components/dashboard/order-status-chart";
 
 export default async function DashboardPage() {
   const session = await auth();
   if (!session) redirect("/login");
+
+  const [stats, statusCounts] = await Promise.all([
+    getDashboardStats(),
+    getOrderStatusCounts(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -14,15 +24,26 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* Placeholder cards - will be built in Commit 5 */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {["Total Revenue", "Orders", "Products", "Customers"].map((title) => (
-          <div key={title} className="rounded-lg border bg-card p-6">
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-2xl font-bold mt-2">--</p>
-          </div>
-        ))}
+      {/* Stats Cards */}
+      <StatsCards
+        totalRevenue={stats.totalRevenue}
+        orderCount={stats.orderCount}
+        productCount={stats.productCount}
+        customerCount={stats.customerCount}
+      />
+
+      {/* Charts Row */}
+      <div className="grid gap-4 lg:grid-cols-7">
+        <div className="lg:col-span-4">
+          <RevenueChart data={stats.monthlyRevenue} />
+        </div>
+        <div className="lg:col-span-3">
+          <OrderStatusChart data={statusCounts} />
+        </div>
       </div>
+
+      {/* Recent Orders */}
+      <RecentOrders orders={stats.recentOrders} />
     </div>
   );
 }
