@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Search, ChevronRight } from "lucide-react";
+import { Search, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { OrderDialog } from "@/components/orders/order-dialog";
 import {
   Table,
   TableBody,
@@ -53,6 +54,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -102,11 +104,17 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
-        <p className="text-muted-foreground">
-          Manage and track customer orders.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
+          <p className="text-muted-foreground">
+            Manage and track customer orders.
+          </p>
+        </div>
+        <Button onClick={() => setDialogOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Create Order
+        </Button>
       </div>
 
       {/* Status summary cards */}
@@ -249,6 +257,12 @@ export default function OrdersPage() {
           </TableBody>
         </Table>
       </div>
+      {/* Order Dialog */}
+      <OrderDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onSave={fetchOrders}
+      />
     </div>
   );
 }
