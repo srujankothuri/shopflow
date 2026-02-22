@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RuleDialog } from "@/components/rules/rule-dialog";
 import { RuleLogsDialog } from "@/components/rules/rule-logs-dialog";
+import { RuleTemplates } from "@/components/rules/rule-templates";
 
 interface Rule {
   id: string;
@@ -174,6 +175,16 @@ export default function RulesPage() {
             <div className="text-2xl font-bold">{totalTriggers}</div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Templates section */}
+      <div className="space-y-2">
+        <h2 className="text-lg font-semibold">Quick Templates</h2>
+        <p className="text-sm text-muted-foreground">One-click activate pre-built automation rules.</p>
+        <RuleTemplates
+          onActivate={fetchRules}
+          existingRuleNames={rules.map((r) => r.name)}
+        />
       </div>
 
       {/* Rules list */}
