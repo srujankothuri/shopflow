@@ -158,7 +158,7 @@ export async function executeRulesForTrigger(
   // Fetch all active rules for this trigger, sorted by priority
   const rules = await db.rule.findMany({
     where: {
-      trigger: triggerType as RuleWithRelations["trigger"],
+      trigger: triggerType as any,
       isActive: true,
     },
     orderBy: { priority: "desc" },
@@ -168,7 +168,7 @@ export async function executeRulesForTrigger(
 
   for (const rule of rules) {
     const conditions = rule.conditions as { groups?: ConditionGroup[] };
-    const actions = rule.actions as Action[];
+    const actions = (rule as any).actions as Action[];
 
     const groups = conditions?.groups || [];
 
