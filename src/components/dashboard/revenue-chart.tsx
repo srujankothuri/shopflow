@@ -42,7 +42,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
                   borderRadius: "8px",
                   color: "var(--card-foreground)",
                 }}
-                formatter={(value: number) => [
+                formatter={(value: number | string) => [
                   `$${value.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
                   "Revenue",
                 ]}
