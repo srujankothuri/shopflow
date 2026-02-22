@@ -78,3 +78,43 @@ export async function getOrderStatusCounts() {
 
   return counts;
 }
+
+export async function getRecentActivity() {
+  const [recentOrders, recentCustomers, recentRuleLogs] = await Promise.all([
+    db.order.findMany({
+      take: 5,
+      orderBy: { createdAt: "desc" },
+      include: { customer: { select: { name: true } } },
+    }),
+    db.customer.findMany({
+      take: 3,
+      orderBy: { createdAt: "desc" },
+    }),
+    db.ruleLog.findMany({
+      take: 3,
+      orderBy: { executedAt: "desc" },
+      where: { status: "SUCCESS" },
+      include: { rule: { select: { name: true } } },
+    }),
+  ]);
+
+  const activities = [
+    ...recentOrders.map((o) => ({
+      type: "order" as const,
+      message: `${o.customer.name} placed order ${o.orderNum} for $${o.totalPrice.toFixed(2)}`,
+      timestamp: o.createdAt,
+    })),
+    ...recentCustomers.map((c) => ({
+      type: "customer" as const,
+      message: `${c.name} joined as a new customer`,
+      timestamp: c.createdAt,
+    })),
+    ...recentRuleLogs.map((l) => ({
+      type: "rule" as const,
+      message: `Rule "${l.rule.name}" executed successfully`,
+      timestamp: l.executedAt,
+    })),
+  ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()).slice(0, 8);
+
+  return activities;
+}

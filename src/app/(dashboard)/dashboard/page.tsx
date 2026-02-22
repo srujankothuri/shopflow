@@ -1,18 +1,20 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { getDashboardStats, getOrderStatusCounts } from "@/lib/dashboard";
+import { getDashboardStats, getOrderStatusCounts, getRecentActivity } from "@/lib/dashboard";
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { RevenueChart } from "@/components/dashboard/revenue-chart";
 import { RecentOrders } from "@/components/dashboard/recent-orders";
 import { OrderStatusChart } from "@/components/dashboard/order-status-chart";
+import { ActivityFeed } from "@/components/dashboard/activity-feed";
 
 export default async function DashboardPage() {
   const session = await auth();
   if (!session) redirect("/login");
 
-  const [stats, statusCounts] = await Promise.all([
+  const [stats, statusCounts, activities] = await Promise.all([
     getDashboardStats(),
     getOrderStatusCounts(),
+    getRecentActivity(),
   ]);
 
   return (
@@ -42,8 +44,15 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent Orders */}
-      <RecentOrders orders={stats.recentOrders} />
+      {/* Recent Orders + Activity */}
+      <div className="grid gap-4 lg:grid-cols-7">
+        <div className="lg:col-span-4">
+          <RecentOrders orders={stats.recentOrders} />
+        </div>
+        <div className="lg:col-span-3">
+          <ActivityFeed activities={activities} />
+        </div>
+      </div>
     </div>
   );
 }
