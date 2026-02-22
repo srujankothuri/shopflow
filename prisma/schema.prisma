@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==================== AUTH ====================
+
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  hashedPassword String?
+  image          String?
+  role           UserRole  @default(ADMIN)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  rules          Rule[]
+  ruleLogs       RuleLog[]
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  VIEWER
+}
+
+// ==================== PRODUCTS ====================
+
+model Product {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  stock       Int           @default(0)
+  sku         String        @unique
+  imageUrl    String?
+  status      ProductStatus @default(ACTIVE)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  category    Category?     @relation(fields: [categoryId], references: [id])
+  categoryId  String?
+  orderItems  OrderItem[]
+
+  @@index([categoryId])
+  @@index([status])
+}
+
+enum ProductStatus {
+  ACTIVE
+  ARCHIVED
+  DRAFT
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  products  Product[]
+}
+
+// ==================== ORDERS ====================
+
+model Order {
+  id         String      @id @default(cuid())
+  orderNum   String      @unique
+  status     OrderStatus @default(PENDING)
+  totalPrice Float
+  note       String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  // Relations
+  customer   Customer    @relation(fields: [customerId], references: [id])
+  customerId String
+  items      OrderItem[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  quantity  Int
+  unitPrice Float
+
+  // Relations
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+// ==================== CUSTOMERS ====================
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  address   String?
+  tag       CustomerTag @default(REGULAR)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  orders    Order[]
+}
+
+enum CustomerTag {
+  REGULAR
+  VIP
+  WHOLESALE
+  FLAGGED
+}
+
+// ==================== AUTOMATION RULES ====================
+
+model Rule {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  isActive    Boolean    @default(true)
+  trigger     RuleTrigger
+  conditions  Json       // Stores the condition tree (AND/OR groups)
+  actions     Json       // Stores array of actions with params
+  priority    Int        @default(0)
+  triggerCount Int       @default(0)
+  lastTriggeredAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  createdBy   User       @relation(fields: [createdById], references: [id])
+  createdById String
+  logs        RuleLog[]
+
+  @@index([isActive])
+  @@index([trigger])
+}
+
+enum RuleTrigger {
+  ORDER_PLACED
+  ORDER_STATUS_CHANGED
+  LOW_STOCK
+  HIGH_VALUE_ORDER
+  REPEAT_CUSTOMER
+}
+
+model RuleLog {
+  id          String        @id @default(cuid())
+  status      RuleLogStatus
+  triggerData Json          // Snapshot of data that triggered the rule
+  actionsRun  Json          // What actions were executed
+  error       String?       // Error message if failed
+  executedAt  DateTime      @default(now())
+
+  // Relations
+  rule        Rule          @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  ruleId      String
+  executedBy  User?         @relation(fields: [executedById], references: [id])
+  executedById String?
+
+  @@index([ruleId])
+  @@index([executedAt])
+}
+
+enum RuleLogStatus {
+  SUCCESS
+  FAILURE
+  SKIPPED
+}
