@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, Fragment } from "react";
-import { Plus, Pencil, Trash2, Search, ChevronDown, ChevronUp } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Plus, Pencil, Trash2, Search, ChevronDown, ChevronUp, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -108,10 +108,16 @@ export default function CustomersPage() {
           <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
           <p className="text-muted-foreground">Manage customers and view order history.</p>
         </div>
-        <Button onClick={() => { setEditCustomer(null); setDialogOpen(true); }}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Customer
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => window.open("/api/export?type=customers")}>
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
+          </Button>
+          <Button onClick={() => { setEditCustomer(null); setDialogOpen(true); }}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Customer
+          </Button>
+        </div>
       </div>
 
       {/* Summary */}
@@ -191,8 +197,8 @@ export default function CustomersPage() {
               </TableRow>
             ) : (
               filtered.map((customer) => (
-                <Fragment key={customer.id}>
-                  <TableRow  className="cursor-pointer">
+                <>
+                  <TableRow key={customer.id} className="cursor-pointer">
                     <TableCell>
                       <Button
                         variant="ghost"
@@ -289,7 +295,7 @@ export default function CustomersPage() {
                       </TableCell>
                     </TableRow>
                   )}
-                </Fragment>
+                </>
               ))
             )}
           </TableBody>

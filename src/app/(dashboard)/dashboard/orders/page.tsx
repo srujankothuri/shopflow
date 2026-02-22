@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Search, ChevronRight, Plus } from "lucide-react";
+import { Search, ChevronRight, Plus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -111,10 +111,16 @@ export default function OrdersPage() {
             Manage and track customer orders.
           </p>
         </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Order
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => window.open("/api/export?type=orders")}>
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
+          </Button>
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create Order
+          </Button>
+        </div>
       </div>
 
       {/* Status summary cards */}
