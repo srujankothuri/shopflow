@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Fragment} from "react";
 import { Plus, Pencil, Trash2, Search, ChevronDown, ChevronUp, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -197,8 +197,8 @@ export default function CustomersPage() {
               </TableRow>
             ) : (
               filtered.map((customer) => (
-                <>
-                  <TableRow key={customer.id} className="cursor-pointer">
+                <Fragment key={customer.id}>
+                  <TableRow  className="cursor-pointer">
                     <TableCell>
                       <Button
                         variant="ghost"
@@ -295,7 +295,7 @@ export default function CustomersPage() {
                       </TableCell>
                     </TableRow>
                   )}
-                </>
+                </Fragment>
               ))
             )}
           </TableBody>
