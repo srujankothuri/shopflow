@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://shopflow-srujan.vercel.app">🔗 Live Demo</a> •
+  <a href="https://shopflow-srujan-kothuris-projects.vercel.app/">🔗 Live Demo</a> •
   <a href="#features">Features</a> •
   <a href="#tech-stack">Tech Stack</a> •
   <a href="#getting-started">Getting Started</a> •
