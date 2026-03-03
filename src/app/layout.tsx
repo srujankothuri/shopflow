@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     siteName: "ShopFlow",
     images: [
       {
-        url: "https://shopflow-srujan-kothuris-projects.vercel.app/og-preview.png",
+        url: "https://shopflow-srujan-kothuris-projects.vercel.app/og-preview.jpeg",
         width: 1200,
         height: 627,
         alt: "ShopFlow — E-Commerce Automation Platform",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     description:
       "Full-stack e-commerce platform with authentication, workflow automation, and admin tooling.",
     images: [
-      "https://shopflow-srujan-kothuris-projects.vercel.app/og-preview.png",
+      "https://shopflow-srujan-kothuris-projects.vercel.app/og-preview.jpeg",
     ],
   },
 };
